@@ -37,14 +37,14 @@ The directory contains a genesis file and two private keys.
 Now we can start basecoin:
 
 ```
-basecoin start --genesis genesis.json --in-proc
+basecoin start --in-proc
 ```
 
 This will start basecoin with the Tendermint node running in the same process.
 To start Tendermint in a separate process instead, use:
 
 ```
-basecoin start --genesis genesis.json
+basecoin start
 ```
 
 and in another window:
