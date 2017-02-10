@@ -1,4 +1,4 @@
-# paytovote plugin
+# PayToVote Plugin
 
 ### Description
 Paytovote is a basic application which demonstrates how to create an instance of the basecoin system which
@@ -13,8 +13,6 @@ Run `make all` in this directory. This will update all dependencies, run the
 test suite, and install the `paytovote` binary to your `$GOPATH/bin`.  
 
 ### General Usage
- - enable the paytovote plugin and start `paytovote start --paytovote-plugin` and flags listed below 
- - start tendermint in another terminal `tendermint node`
  - create issues with `paytovote tx paytovote create-issue`
    - mandatory flags
      - --from value         Path to a private key to sign the transaction (default: "key.json")
