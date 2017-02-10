@@ -1,4 +1,4 @@
-hash: 1926e874e4548d0fe7f0c698ae56b8284896fcbb175db58607f0709054ddcdc2
+sh: 1926e874e4548d0fe7f0c698ae56b8284896fcbb175db58607f0709054ddcdc2
 updated: 2017-02-07T20:05:01.331654662-05:00
 imports:
 - name: github.com/btcsuite/btcd
@@ -51,7 +51,11 @@ imports:
   - server
   - types
 - name: github.com/tendermint/basecoin
+<<<<<<< 27455c9239bf153491406fc72cb0d3796c15aeb9
   version: 2728af1f3bba8e4225a5a27eb000ef567131cfe2
+=======
+  version: a83801c0327f9e4774165e5a055eced67dbba38f
+>>>>>>> paytovote new functionality/documentation
   subpackages:
   - app
   - cmd/commands

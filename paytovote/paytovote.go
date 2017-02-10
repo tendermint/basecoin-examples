@@ -82,15 +82,15 @@ func IssueKey(issue string) []byte {
 	//The state key is defined as only being affected by effected issue
 	// aka. if multiple paytovote plugins are initialized
 	// then all will have access to the same issue vote counts
-	return []byte(cmn.Fmt("P2VPlugin{issue=%v}.State", issue))
+	return []byte(cmn.Fmt("P2VPlugin,issue=%v", issue))
 }
 
-func getIssue(store types.KVStore, issue string) (p2vIssue P2VIssue, err error) {
-	p2vIssueBytes := store.Get(IssueKey(issue))
+//get the issue from store bytes
+func GetIssueFromWire(issueBytes []byte) (p2vIssue P2VIssue, err error) {
 
 	//Determine if the issue already exists and load
-	if len(p2vIssueBytes) > 0 { //is there a record of the issue existing?
-		err = wire.ReadBinaryBytes(p2vIssueBytes, &p2vIssue)
+	if len(issueBytes) > 0 { //is there a record of the issue existing?
+		err = wire.ReadBinaryBytes(issueBytes, &p2vIssue)
 		if err != nil {
 			err = abci.ErrInternalError.AppendLog("Error decoding state: " + err.Error())
 		}
@@ -98,6 +98,12 @@ func getIssue(store types.KVStore, issue string) (p2vIssue P2VIssue, err error) 
 		err = abci.ErrInternalError.AppendLog("Tx Issue not found")
 	}
 	return
+}
+
+func getIssue(store types.KVStore, issue string) (p2vIssue P2VIssue, err error) {
+	p2vIssueBytes := store.Get(IssueKey(issue))
+
+	return GetIssueFromWire(p2vIssueBytes)
 }
 
 ///////////////////////////////////////////////////
@@ -227,8 +233,12 @@ func (p2v *P2VPlugin) runTxVote(store types.KVStore, ctx types.CallContext, txBy
 	return abci.OK
 }
 
-func (p2v *P2VPlugin) InitChain(store types.KVStore, vals []*abci.Validator) {}
-func (p2v *P2VPlugin) BeginBlock(store types.KVStore, height uint64)         {}
-func (p2v *P2VPlugin) EndBlock(store types.KVStore, height uint64) []*abci.Validator {
-	return nil
+func (p2v *P2VPlugin) InitChain(store types.KVStore, vals []*abci.Validator) {
+}
+
+func (p2v *P2VPlugin) BeginBlock(store types.KVStore, hash []byte, header *abci.Header) {
+}
+
+func (p2v *P2VPlugin) EndBlock(store types.KVStore, height uint64) (res abci.ResponseEndBlock) {
+	return
 }

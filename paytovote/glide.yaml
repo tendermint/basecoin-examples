@@ -20,6 +20,4 @@ testImport:
   subpackages:
   - assert
 - package: github.com/tendermint/merkleeyes
-  version: develop
-  subpackages:
-  - client
+  version: 7c1ec0ef86c42b7a461e3967efb6c35bd5652101
