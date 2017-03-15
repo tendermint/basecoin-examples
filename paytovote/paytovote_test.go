@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/tendermint/basecoin/app"
-	//cmds "github.com/tendermint/basecoin/cmd/basecoin/commands"
 	"github.com/tendermint/basecoin/state"
 	"github.com/tendermint/basecoin/types"
 
@@ -19,12 +18,14 @@ import (
 )
 
 func TestP2VPlugin(t *testing.T) {
+	assert := assert.New(t)
 
 	// Basecoin initialization
 	store := eyescli.NewLocalClient("", 0) //non-persistent instance of merkleeyes
 	chainID := "test_chain_id"
 	bcApp := app.NewBasecoin(store)
-	bcApp.SetOption("base/chainID", chainID)
+	//XXX test
+	bcApp.SetOption("base/chain_id", chainID)
 
 	// Add Counter plugin
 	P2VPlugin := New()
@@ -38,9 +39,9 @@ func TestP2VPlugin(t *testing.T) {
 	startBal := types.Coins{{"", 1000}, {"issueToken", 1000}, {"voteToken", 1000}}
 	test1Acc.Balance = startBal
 	accMarshal, err := json.Marshal(test1Acc)
-	assert.Nil(t, err, "error Marshalling account")
+	assert.Nil(err, "error Marshalling account")
 	errStr := bcApp.SetOption("base/account", string(accMarshal))
-	assert.Equal(t, "Success", errStr, errStr)
+	assert.Equal("Success", errStr, errStr)
 
 	bcApp.Commit()
 
@@ -61,10 +62,11 @@ func TestP2VPlugin(t *testing.T) {
 
 		// Sign request
 		signBytes := tx.SignBytes(chainID)
-		sig := test1PrivAcc.PrivKey.Sign(signBytes)
+		sig := test1PrivAcc.Sign(signBytes)
 		tx.Input.Signature = crypto.SignatureS{sig}
 
 		// Write request
+		//txBytes := []byte(wire.BinaryBytes(struct{}{tx}))
 		txBytes := wire.BinaryBytes(struct{ types.Tx }{tx})
 		return bcApp.DeliverTx(txBytes)
 	}
@@ -127,47 +129,47 @@ func TestP2VPlugin(t *testing.T) {
 	// Test a basic issue generation
 	res := deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 1,
 		NewCreateIssueTxBytes(issue1, types.Coins{{"voteToken", 2}}, types.Coins{{"issueToken", 1}}))
-	assert.True(t, res.IsOK(), res.String())
+	assert.True(res.IsOK(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}}))
 	testIssue(issue1, 0, 0)
 
 	// Test a basic votes
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 2,
 		NewVoteTxBytes(issue1, TypeByteVoteFor))
-	assert.True(t, res.IsOK(), res.String())
+	assert.True(res.IsOK(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 2}}))
 	testIssue(issue1, 1, 0)
 
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 3,
 		NewVoteTxBytes(issue1, TypeByteVoteAgainst))
-	assert.True(t, res.IsOK(), res.String())
+	assert.True(res.IsOK(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testIssue(issue1, 1, 1)
 
 	// Test prevented voting on non-existent issue
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 4,
 		NewVoteTxBytes(issue2, TypeByteVoteFor))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testNoIssue(issue2)
 
 	// Test prevented duplicate issue generation
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 5,
 		NewCreateIssueTxBytes(issue1, types.Coins{{"voteToken", 1}}, types.Coins{{"issueToken", 1}}))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 
 	// Test prevented issue generation from insufficient funds
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 6,
 		NewCreateIssueTxBytes(issue2, types.Coins{{"voteToken", 1}}, types.Coins{{"issueToken", 2}}))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testNoIssue(issue2)
 
 	// Test prevented voting from insufficient funds
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 1}}, 7,
 		NewVoteTxBytes(issue1, TypeByteVoteFor))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testIssue(issue1, 1, 1)
 }

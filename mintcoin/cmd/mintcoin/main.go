@@ -1,24 +1,37 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	// import _ to register the mint plugin to apptx
-	_ "github.com/tendermint/basecoin-examples/mintcoin/commands"
+	_ "github.com/tendermint/basecoin-examples/mintcoin/cmd/mintcoin/commands"
 	"github.com/tendermint/basecoin/cmd/commands"
-	"github.com/urfave/cli"
 )
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "mintcoin"
-	app.Usage = "mintcoin [command] [args...]"
-	app.Version = "0.1.0"
-	app.Commands = []cli.Command{
+
+	var RootCmd = &cobra.Command{
+		Use: "mintcoin",
+	}
+
+	RootCmd.AddCommand(
+		commands.InitCmd,
 		commands.StartCmd,
 		commands.TxCmd,
 		commands.QueryCmd,
+		commands.KeyCmd,
+		commands.VerifyCmd,
+		commands.BlockCmd,
 		commands.AccountCmd,
+		commands.UnsafeResetAllCmd,
+		commands.QuickVersionCmd("0.1.0"),
+	)
+
+	if err := RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	app.Run(os.Args)
 }

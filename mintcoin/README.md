@@ -45,25 +45,23 @@ the corresponding amounts in the embedded `MintTx` will be credited to the liste
 
 Alright, now let's set ourselves up as issuers and send some shiny new bills to our friends!
 
-First we do the usual tendermint reset routine:
+First we do the usual reset routine:
 
 ```
-tendermint init
-tendermint unsafe_reset_all
+mintcoin init
+mintcoin unsafe_reset_all
 ```
 
 Now we can start Basecoin with the mintcoin plugin and the default genesis:
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/mintcoin/data
-mintcoin start --in-proc
+mintcoin start
 ```
 
 In another window, we can run the client tool:
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/mintcoin/data
-mintcoin account 0xD397BC62B435F3CF50570FBAB4340FE52C60858F
+mintcoin account 0x1B1BE55F969F54064628A63B9559E7C21C925165
 ```
 
 This was the account registered in the genesis; it has the right number of coins.
@@ -71,19 +69,19 @@ This was the account registered in the genesis; it has the right number of coins
 Let's mint some new coins:
 
 ```
-mintcoin tx mint --chain_id mint_chain_id --amount 1blank --mintto D397BC62B435F3CF50570FBAB4340FE52C60858F --mint 1000BTC
-mintcoin tx mint --chain_id mint_chain_id --amount 1blank --mintto D397BC62B435F3CF50570FBAB4340FE52C60858F --mint 5cosmo
-mintcoin tx mint --chain_id mint_chain_id --amount 1blank --mintto D397BC62B435F3CF50570FBAB4340FE52C60858F --mint 5000FOOD
+mintcoin tx mint --chain_id mint_chain_id --amount 1mycoin --mintto 0x1B1BE55F969F54064628A63B9559E7C21C925165 --mint 1000BTC
+mintcoin tx mint --chain_id mint_chain_id --amount 1mycoin --mintto 0x1B1BE55F969F54064628A63B9559E7C21C925165 --mint 5cosmo
+mintcoin tx mint --chain_id mint_chain_id --amount 1mycoin --mintto 0x1B1BE55F969F54064628A63B9559E7C21C925165 --mint 5000FOOD
 ```
 
-Here, we're sending `1000 BTC`, `5 cosmo`, and `5000 FOOD` to the account with address `D397BC62B435F3CF50570FBAB4340FE52C60858`.
+Here, we're sending `1000 BTC`, `5 cosmo`, and `5000 FOOD` to the account with address `0x1B1BE55F969F54064628A63B9559E7C21C925165`.
 Note that we have to provide some non-zero `--amount` for the transaction, and we have to specify the `--chain_id`,
 which must match the `chain_id` in the `genesis.json`.
 
 Let's take another look at the account:
 
 ```
-mintcoin account 0xD397BC62B435F3CF50570FBAB4340FE52C60858F
+mintcoin account 0x1B1BE55F969F54064628A63B9559E7C21C925165
 ```
 
 It's got all the coins!
@@ -91,23 +89,22 @@ It's got all the coins!
 Alright, let's issue some coins to our friend:
 
 ```
-mintcoin account 4793A333846E5104C46DD9AB9A00E31821B2F301
-mintcoin tx mint --chain_id mint_chain_id --amount 1blank --mintto 4793A333846E5104C46DD9AB9A00E31821B2F301 --mint 1234BTC
-mintcoin account 4793A333846E5104C46DD9AB9A00E31821B2F301
+mintcoin tx mint --chain_id mint_chain_id --amount 1mycoin --mintto 0x1DA7C74F9C219229FD54CC9F7386D5A3839F0090 --mint 1234BTC
+mintcoin account 0x1DA7C74F9C219229FD54CC9F7386D5A3839F0090
 ```
 
 Now they can send us some coins for our labour:
 
 ```
-mintcoin tx send --chain_id mint_chain_id --from key2.json --to D397BC62B435F3CF50570FBAB4340FE52C60858F --amount 333BTC
-mintcoin account 4793A333846E5104C46DD9AB9A00E31821B2F301
-mintcoin account D397BC62B435F3CF50570FBAB4340FE52C60858F
+mintcoin tx send --chain_id mint_chain_id --from key2.json --to 0x1B1BE55F969F54064628A63B9559E7C21C925165 --amount 333BTC
+mintcoin account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090
+mintcoin account 0x1B1BE55F969F54064628A63B9559E7C21C925165
 ```
 
 If we try to issue coins from the wrong account, we'll get an error:
 
 ```
-mintcoin tx mint --from key2.json --chain_id mint_chain_id --amount 1blank --mintto 4793A333846E5104C46DD9AB9A00E31821B2F301 --mint 1234BTC
+mintcoin tx mint --from key2.json --chain_id mint_chain_id --amount 1BTC --mintto 1DA7C74F9C219229FD54CC9F7386D5A3839F0090 --mint 1234BTC
 ```
 
 ## Attaching a GUI

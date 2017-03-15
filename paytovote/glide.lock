@@ -1,5 +1,5 @@
-hash: 2e1af9f65b2fa99f30f1c60795fad61c937fc62516bd04bea0b2ebe4fbf1d1f6
-updated: 2017-03-28T02:21:56.205608045-04:00
+hash: 831234603bb4eeaa1686243d6997e905b03b9f0af657f9d8b097b4c44eb34702
+updated: 2017-04-02T00:10:51.11343328-04:00
 imports:
 - name: github.com/btcsuite/btcd
   version: 4b348c1d33373d672edd83fc576892d0e46686d2
@@ -12,7 +12,7 @@ imports:
 - name: github.com/go-stack/stack
   version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
 - name: github.com/golang/protobuf
-  version: c9c7427a2a70d2eb3bafa0ab2dc163e45f143317
+  version: 2bba0603135d7d7f5cb73b2125beeda19c09f4ef
   subpackages:
   - proto
 - name: github.com/golang/snappy
@@ -30,7 +30,7 @@ imports:
 - name: github.com/pkg/errors
   version: ff09b135c25aae272398c51a07235b90a75aa4f0
 - name: github.com/spf13/cobra
-  version: 7be4beda01ec05d0b93d80b3facd2b6f44080d94
+  version: 6421115516beea57a41a46555c21899eb83f6387
 - name: github.com/spf13/pflag
   version: d16db1e50e33dff1b6cdf37596cef36742128670
 - name: github.com/syndtr/goleveldb
@@ -56,7 +56,7 @@ imports:
   - server
   - types
 - name: github.com/tendermint/basecoin
-  version: 4cc15901e0f9fe3091729a0405b2ba44d38dacba
+  version: b6283661a677dae9f92bb4d7394e963923d09d6a
   subpackages:
   - app
   - cmd/commands
@@ -130,10 +130,8 @@ imports:
   - state
   - types
   - version
-- name: github.com/urfave/cli
-  version: 9e5b04886c4bfee2ceba1465b8121057355c4e53
 - name: golang.org/x/crypto
-  version: 459e26527287adbc2adcc5d0d49abff9a5f315a7
+  version: 3cb07270c9455e8ad27956a70891c962d121a228
   subpackages:
   - curve25519
   - nacl/box
@@ -144,7 +142,7 @@ imports:
   - ripemd160
   - salsa20/salsa
 - name: golang.org/x/net
-  version: 6c23252515492caf9b228a9d5cabcdbde29f7f82
+  version: ffcf1bedda3b04ebb15a168a59800a73d6dc0f4d
   subpackages:
   - context
   - http2
@@ -154,18 +152,18 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/sys
-  version: afadfcc7779c1f4db0f6f6438afcb108d9c9c7cd
+  version: 9a7256cb28ed514b4e1e5f68959914c4c28a92e0
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: fc7fa097411d30e6708badff276c4c164425590c
+  version: f4b4367115ec2de254587813edaa901bc1c723a8
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/grpc
-  version: 14a6be430b5164b888c95ac962129546c85831e7
+  version: b2fae0cf40c13b6741fbcc32a7bfa52fdf5c278d
   subpackages:
   - codes
   - credentials

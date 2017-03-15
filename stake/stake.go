@@ -139,8 +139,9 @@ func (sp *Plugin) InitChain(store types.KVStore, vals []*abci.Validator) {
 }
 
 // BeginBlock from ABCI
-func (sp *Plugin) BeginBlock(store types.KVStore, height uint64) {
+func (sp *Plugin) BeginBlock(store types.KVStore, hash []byte, header *abci.Header) {
 	state := loadState(store)
+	height := header.Height
 
 	// If any unbonding requests have reached maturity, pay out coins into their
 	// basecoin accounts. `state.Unbonding` is a queue, so the lowest-index items
@@ -168,8 +169,8 @@ func (sp *Plugin) BeginBlock(store types.KVStore, height uint64) {
 }
 
 // EndBlock from ABCI
-func (sp *Plugin) EndBlock(store types.KVStore, height uint64) (vals []*abci.Validator) {
-	return loadState(store).Collateral.Validators()
+func (sp *Plugin) EndBlock(store types.KVStore, height uint64) (res abci.ResponseEndBlock) {
+	return abci.ResponseEndBlock{loadState(store).Collateral.Validators()}
 }
 
 func loadState(store types.KVStore) *State {
