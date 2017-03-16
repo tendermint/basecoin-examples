@@ -8,7 +8,6 @@ import (
 	"github.com/tendermint/basecoin/app"
 	//cmds "github.com/tendermint/basecoin/cmd/basecoin/commands"
 	"github.com/tendermint/basecoin/state"
-	"github.com/tendermint/basecoin/testutils"
 	"github.com/tendermint/basecoin/types"
 
 	abci "github.com/tendermint/abci/types"
@@ -30,7 +29,7 @@ func TestP2VPlugin(t *testing.T) {
 	bcApp.RegisterPlugin(P2VPlugin)
 
 	// Account initialization
-	test1PrivAcc := testutils.PrivAccountFromSecret("test1")
+	test1PrivAcc := types.PrivAccountFromSecret("test1")
 	test1Acc := test1PrivAcc.Account
 
 	// Seed Basecoin with account

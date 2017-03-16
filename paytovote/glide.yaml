@@ -5,7 +5,7 @@ import:
   subpackages:
   - types
 - package: github.com/tendermint/basecoin
-  version: develop
+  version: simplify
   subpackages:
   - cmd/commands
   - state
@@ -19,5 +19,3 @@ testImport:
 - package: github.com/stretchr/testify
   subpackages:
   - assert
-- package: github.com/tendermint/merkleeyes
-  version: 7c1ec0ef86c42b7a461e3967efb6c35bd5652101
