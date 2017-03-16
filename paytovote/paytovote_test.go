@@ -1,6 +1,7 @@
 package paytovote
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,6 +13,7 @@ import (
 
 	abci "github.com/tendermint/abci/types"
 	cmn "github.com/tendermint/go-common"
+	"github.com/tendermint/go-crypto"
 	"github.com/tendermint/go-wire"
 	eyescli "github.com/tendermint/merkleeyes/client"
 )
@@ -35,7 +37,11 @@ func TestP2VPlugin(t *testing.T) {
 	// Seed Basecoin with account
 	startBal := types.Coins{{"", 1000}, {"issueToken", 1000}, {"voteToken", 1000}}
 	test1Acc.Balance = startBal
-	bcApp.SetOption("base/account", string(wire.JSONBytes(test1Acc)))
+	accMarshal, err := json.Marshal(test1Acc)
+	assert.Nil(t, err, "error Marshalling account")
+	errStr := bcApp.SetOption("base/account", string(accMarshal))
+	assert.Equal(t, "Success", errStr, errStr)
+
 	bcApp.Commit()
 
 	deliverTx := func(gas int64,
@@ -56,7 +62,7 @@ func TestP2VPlugin(t *testing.T) {
 		// Sign request
 		signBytes := tx.SignBytes(chainID)
 		sig := test1PrivAcc.PrivKey.Sign(signBytes)
-		tx.Input.Signature = sig
+		tx.Input.Signature = crypto.SignatureS{sig}
 
 		// Write request
 		txBytes := wire.BinaryBytes(struct{ types.Tx }{tx})

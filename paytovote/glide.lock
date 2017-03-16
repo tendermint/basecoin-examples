@@ -1,5 +1,5 @@
-hash: e6663bb057b8019f6e80b0705f4e4bbbb1f36bd22f7ebe2eeddf7d897c5fdb29
-updated: 2017-03-16T14:47:24.639459103-04:00
+hash: 4fa827244bf47642c228bb8524c2ece0e8cb25706af40b9abe87c82b105950a4
+updated: 2017-03-16T16:17:10.336087058-04:00
 imports:
 - name: github.com/btcsuite/btcd
   version: 583684b21bfbde9b5fc4403916fd7c807feb0289
@@ -26,7 +26,7 @@ imports:
 - name: github.com/mattn/go-isatty
   version: 57fdcb988a5c543893cc61bce354a6e24ab70022
 - name: github.com/pkg/errors
-  version: bfd5150e4e41705ded2129ec33379de1cb90b513
+  version: ff09b135c25aae272398c51a07235b90a75aa4f0
 - name: github.com/syndtr/goleveldb
   version: 3c5717caf1475fd25964109a0fc640bd150fce43
   subpackages:
@@ -57,11 +57,6 @@ imports:
   - plugins/ibc
   - state
   - types
-- name: github.com/tendermint/basecoin-examples
-  version: 27455c9239bf153491406fc72cb0d3796c15aeb9
-  subpackages:
-  - paytovote
-  - paytovote/commands
 - name: github.com/tendermint/ed25519
   version: 1f52c6f8b8a5c7908aff4497c186af344b428925
   subpackages:

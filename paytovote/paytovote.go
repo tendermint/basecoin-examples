@@ -239,6 +239,6 @@ func (p2v *P2VPlugin) InitChain(store types.KVStore, vals []*abci.Validator) {
 func (p2v *P2VPlugin) BeginBlock(store types.KVStore, hash []byte, header *abci.Header) {
 }
 
-func (p2v *P2VPlugin) EndBlock(store types.KVStore, hash []byte, header types.Header) (res abci.ResponseEndBlock) {
+func (p2v *P2VPlugin) EndBlock(store types.KVStore, height uint64) (res abci.ResponseEndBlock) {
 	return
 }
