@@ -215,45 +215,38 @@ You know the deal by now, so....
 In one window start the server:
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/trader
-make all
-tendermint unsafe_reset_all
-cd data
-trader start --in-proc --options-plugin
-# dlv debug ../cmd/trader/main.go -- start --in-proc --options-plugin
+trader init
+trader unsafe_reset_all
+trader start
 ```
 
 Run basecoin client in another window.  In this example, key.json will be the issuer, key2.json the holder.
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/trader/data
-
 # check the two accounts
 trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # issuer
 trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # holder
 
 # let's make an option
-trader apptx --chain_id trader_chain_id --from key.json --amount 400ETH options create --trade 4BTC
-# dlv debug ../cmd/trader/main.go -- apptx --chain_id trader_chain_id --from key.json --coin ETH --amount 400 options create --trade 4BTC
-
+trader tx options create --chain_id trader_chain_id --from key.json --amount 400ETH  --trade 4BTC
 
 #-> TODO: need to get OPTION_ID locally, broadcastTx response....
-OPTION_ID=XXXXXXX
-trader apptx --chain_id trader_chain_id options query $OPTION_ID
+OPTION_ID=<paste result from create command>
+trader tx options query --chain_id trader_chain_id  $OPTION_ID
 
 # we cannot exercise it cuz the we do not own the option yet
-trader apptx --chain_id trader_chain_id --from key2.json --amount 4BTC options exercise --option $OPTION_ID
+trader tx options exercise --chain_id trader_chain_id --from key2.json --amount 4BTC --option $OPTION_ID
 
 # note, that it didn't cost anything to fail :) no 4 BTC loss....
 trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # sender
 
 # so, let us offer this for sale (only the current holder can)
 # also note this money is not used up (just needs to be non-zero to prevent spaming)
-trader apptx --chain_id trader_chain_id --from key.json --amount 10ETH options sell --option $OPTION_ID --price 100blank
+trader tx options sell --chain_id trader_chain_id --from key.json --amount 10ETH --option $OPTION_ID --price 100mycoin
 
 # and now the holder can buy the rights to the option.
 # the money is used up to the price level (overpayment returned)
-trader apptx --chain_id trader_chain_id --from key2.json --amount 250blank options buy --option $OPTION_ID
+trader tx options buy --chain_id trader_chain_id --from key2.json --amount 250mycoin --option $OPTION_ID
 
 # check the two accounts
 trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # issuer
@@ -263,11 +256,14 @@ trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # holder
 # and notice the only other change is the 100 mycoin payment from holder to issuer for ownership of the option
 # all other coin is returned untouched after the transaction
 
+# and see the option has changed owner
+trader tx options query --chain_id trader_chain_id  $OPTION_ID
+
 # and now for the real trick, let's use this option
-trader apptx --chain_id trader_chain_id --from key2.json --amount 2BTC options exercise --option $OPTION_ID
+trader tx options exercise --chain_id trader_chain_id --from key2.json --amount 2BTC --option $OPTION_ID
 
 # wait... it only works if you send the required amount
-trader apptx --chain_id trader_chain_id --from key2.json --amount 4BTC options exercise --option $OPTION_ID
+trader tx options exercise --chain_id trader_chain_id --from key2.json --amount 4BTC --option $OPTION_ID
 
 # now, look at this, the issuer got the 4 BTC, the holder the 400 ETH
 # and we can even trade the rights to perform this operation :)
@@ -275,7 +271,7 @@ trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # issuer
 trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # holder
 
 # and the option has now disappeared, so you can't use it again
-trader apptx --chain_id trader_chain_id options query $OPTION_ID
+trader tx options query --chain_id trader_chain_id  $OPTION_ID
 ```
 
 This is just the start.  There is also some methods for expiration and
