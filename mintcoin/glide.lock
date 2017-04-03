@@ -56,7 +56,7 @@ imports:
   - server
   - types
 - name: github.com/tendermint/basecoin
-  version: 95e40affb70ba1c8bd0227fea964ada776c9dc32
+  version: 4cdf57aee45d98e75e25fd261479fa67c0af07d4
   subpackages:
   - app
   - cmd/commands
