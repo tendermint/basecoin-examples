@@ -5,6 +5,12 @@ modern world, and shows how we can add these features to basecoin, in our quest
 to make the best financial system ever.  Stable and secure and feature-rich,
 and super fast.  This is going to be so good.
 
+## Install
+
+Run `make all` in this directory.
+This will update all dependencies, run the test suite, and install the `trader` binary to your `$GOPATH/bin`.
+
+
 ## Escrow
 
 This first instrument we implement is an [escrow](./escrow).  We can send money
@@ -54,10 +60,13 @@ commands:
 Setup basecoin server with default genesis:
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/trader
-make all
 trader init
 trader unsafe_reset_all
+```
+
+Now we can start Basecoin with the trader plugin and the default genesis:
+
+```
 trader start
 ```
 
