@@ -79,11 +79,15 @@ trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # sender
 trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # arbiter
 trader account 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A   # receiver
 
+# (optional) give the broke guy some cash
+trader tx send --chain_id trader_chain_id --from key.json --amount 20mycoin --to 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A
+trader account 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A   # receiver
+
 # let's make an escrow
 trader tx escrow create --chain_id trader_chain_id --from key.json --amount 400mycoin --recv 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A --arbiter 1DA7C74F9C219229FD54CC9F7386D5A3839F0090
 
 #-> TODO: need to get ESCROW_ID locally, broadcastTx response....
-ESCROW_ID=9D2C197899F922359D7AB13D18123B2749077FB8
+ESCROW_ID=<paste output addr of last command>
 
 # fails cuz the sender cannot release funds
 trader tx escrow pay --chain_id trader_chain_id --from key.json --amount 1mycoin --escrow $ESCROW_ID

@@ -127,7 +127,7 @@ func cmdEscrowResolveTx(cmd *cobra.Command, args []string) {
 
 	tx := types.ResolveEscrowTx{
 		Escrow: addr,
-		Payout: EscrowPayoutFlag,
+		Payout: !EscrowPayoutFlag,
 	}
 	data := types.EscrowTxBytes(tx)
 	bcmd.AppTx(EscrowName, data)
