@@ -3,12 +3,12 @@ package commands
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/basecoin-examples/paytovote"
 	bcmd "github.com/tendermint/basecoin/cmd/commands"
 	"github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
 	"github.com/tendermint/go-wire"
 )
 
@@ -29,19 +29,19 @@ var (
 	P2VQueryIssueCmd = &cobra.Command{
 		Use:   "p2vIssue",
 		Short: "Query a paytovote issue",
-		Run:   queryIssueCmd,
+		RunE:  queryIssueCmd,
 	}
 
 	P2VCreateIssueCmd = &cobra.Command{
 		Use:   "create-issue",
 		Short: "Create an issue which can be voted for",
-		Run:   createIssueCmd,
+		RunE:  createIssueCmd,
 	}
 
 	P2VVoteCmd = &cobra.Command{
 		Use:   "vote",
 		Short: "Vote for an existing issue",
-		Run:   voteCmd,
+		RunE:  voteCmd,
 	}
 )
 
@@ -73,11 +73,11 @@ func init() {
 	bcmd.RegisterStartPlugin(PaytovoteName, func() types.Plugin { return paytovote.New() })
 }
 
-func createIssueCmd(cmd *cobra.Command, args []string) {
+func createIssueCmd(cmd *cobra.Command, args []string) error {
 
 	voteFee, err := bcmd.ParseCoins(voteFeeFlag)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 
 	createIssueFee := types.Coins{{"issueToken", 1}} //manually set the cost to create a new issue here
@@ -85,10 +85,10 @@ func createIssueCmd(cmd *cobra.Command, args []string) {
 	txBytes := paytovote.NewCreateIssueTxBytes(issueFlag, voteFee, createIssueFee)
 
 	fmt.Println("Issue creation transaction sent")
-	bcmd.AppTx(PaytovoteName, txBytes)
+	return bcmd.AppTx(PaytovoteName, txBytes)
 }
 
-func voteCmd(cmd *cobra.Command, args []string) {
+func voteCmd(cmd *cobra.Command, args []string) error {
 
 	var voteTB byte = paytovote.TypeByteVoteFor
 	if !voteForFlag {
@@ -98,17 +98,17 @@ func voteCmd(cmd *cobra.Command, args []string) {
 	txBytes := paytovote.NewVoteTxBytes(issueFlag, voteTB)
 
 	fmt.Println("Vote transaction sent")
-	bcmd.AppTx(PaytovoteName, txBytes)
+	return bcmd.AppTx(PaytovoteName, txBytes)
 }
 
-func queryIssueCmd(cmd *cobra.Command, args []string) {
+func queryIssueCmd(cmd *cobra.Command, args []string) error {
 
 	//get the parent context
 	parentContext := cmd.Parent()
 
 	//get the issue, generate issue key
 	if len(args) != 1 {
-		cmn.Exit("query command requires an argument ([issue])")
+		return fmt.Errorf("query command requires an argument ([issue])") //never stack trace
 	}
 	issue := args[0]
 	issueKey := paytovote.IssueKey(issue)
@@ -116,17 +116,18 @@ func queryIssueCmd(cmd *cobra.Command, args []string) {
 	//perform the query, get response
 	resp, err := bcmd.Query(parentContext.Flag("node").Value.String(), issueKey)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 	if !resp.Code.IsOK() {
-		cmn.Exit(fmt.Sprintf("Query for issueKey (%v) returned non-zero code (%v): %v",
-			string(issueKey), resp.Code, resp.Log))
+		return errors.Errorf("Query for issueKey (%v) returned non-zero code (%v): %v",
+			string(issueKey), resp.Code, resp.Log)
 	}
 
 	//get the paytovote issue object and print it
 	p2vIssue, err := paytovote.GetIssueFromWire(resp.Value)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 	fmt.Println(string(wire.JSONBytes(p2vIssue)))
+	return nil
 }

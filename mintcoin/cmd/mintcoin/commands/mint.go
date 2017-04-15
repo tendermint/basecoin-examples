@@ -4,12 +4,12 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/basecoin-examples/mintcoin"
 	bcmd "github.com/tendermint/basecoin/cmd/commands"
 	"github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
 	wire "github.com/tendermint/go-wire"
 )
 
@@ -24,7 +24,7 @@ var (
 	MintTxCmd = &cobra.Command{
 		Use:   "mint",
 		Short: "Craft a transaction to mint some more currency",
-		Run:   mintTxCmd,
+		RunE:  mintTxCmd,
 	}
 )
 
@@ -41,17 +41,17 @@ func init() {
 	bcmd.RegisterStartPlugin(MintName, func() types.Plugin { return mintcoin.New(MintName) })
 }
 
-func mintTxCmd(cmd *cobra.Command, args []string) {
+func mintTxCmd(cmd *cobra.Command, args []string) error {
 
 	// convert destination address to bytes
 	to, err := hex.DecodeString(bcmd.StripHex(MintToFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("To address is invalid hex: %+v\n", err))
+		return errors.Errorf("To address is invalid hex: %v\n", err)
 	}
 
 	amountCoins, err := bcmd.ParseCoins(MintAmountFlag)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 
 	mintTx := mintcoin.MintTx{
@@ -65,5 +65,5 @@ func mintTxCmd(cmd *cobra.Command, args []string) {
 	fmt.Println("MintTx:", string(wire.JSONBytes(mintTx)))
 	data := wire.BinaryBytes(mintTx)
 
-	bcmd.AppTx(MintName, data)
+	return bcmd.AppTx(MintName, data)
 }

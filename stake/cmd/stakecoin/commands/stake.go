@@ -4,12 +4,12 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/basecoin-examples/stake"
 	bcmd "github.com/tendermint/basecoin/cmd/commands"
 	"github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
 	wire "github.com/tendermint/go-wire"
 )
 
@@ -21,7 +21,7 @@ var (
 	CmdBond = &cobra.Command{
 		Use:   "bond",
 		Short: "Bond some coins to give voting power to a validator",
-		Run:   cmdBond,
+		RunE:  cmdBond,
 	}
 )
 
@@ -45,17 +45,16 @@ func init() {
 	)
 }
 
-func cmdBond(cmd *cobra.Command, args []string) {
+func cmdBond(cmd *cobra.Command, args []string) error {
 
 	// convert validator pubkey to bytes
 	validator, err := hex.DecodeString(bcmd.StripHex(validatorFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Validator is invalid hex: %+v\n", err))
+		return errors.Errorf("Validator is invalid hex: %v\n", err)
 	}
 
 	bondTx := stake.BondTx{ValidatorPubKey: validator}
 	fmt.Println("BondTx:", string(wire.JSONBytes(bondTx)))
 	bytes := wire.BinaryBytes(bondTx)
-	bcmd.AppTx("stake", bytes)
-
+	return bcmd.AppTx("stake", bytes)
 }

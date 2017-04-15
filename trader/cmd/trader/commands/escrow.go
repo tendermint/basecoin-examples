@@ -4,13 +4,13 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/basecoin-examples/trader/plugins/escrow"
 	"github.com/tendermint/basecoin-examples/trader/types"
 	bcmd "github.com/tendermint/basecoin/cmd/commands"
 	bc "github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
 	wire "github.com/tendermint/go-wire"
 )
 
@@ -34,25 +34,25 @@ var (
 	CmdEscrowCreateTx = &cobra.Command{
 		Use:   "create",
 		Short: "Create a new escrow by sending money",
-		Run:   cmdEscrowCreateTx,
+		RunE:  cmdEscrowCreateTx,
 	}
 
 	CmdEscrowResolveTx = &cobra.Command{
 		Use:   "pay",
 		Short: "Resolve the escrow by paying out of returning the money",
-		Run:   cmdEscrowResolveTx,
+		RunE:  cmdEscrowResolveTx,
 	}
 
 	CmdEscrowExpireTx = &cobra.Command{
 		Use:   "expire",
 		Short: "Call to expire the escrow if no action in a given time",
-		Run:   cmdEscrowExpireTx,
+		RunE:  cmdEscrowExpireTx,
 	}
 
 	CmdEscrowQuery = &cobra.Command{
 		Use:   "query [address]",
 		Short: "Return the contents of the given escrow",
-		Run:   cmdEscrowQuery,
+		RunE:  cmdEscrowQuery,
 	}
 )
 
@@ -95,17 +95,17 @@ func init() {
 		func() bc.Plugin { return escrow.New(EscrowName) })
 }
 
-func cmdEscrowCreateTx(cmd *cobra.Command, args []string) {
+func cmdEscrowCreateTx(cmd *cobra.Command, args []string) error {
 	// convert destination address to bytes
 	recv, err := hex.DecodeString(bcmd.StripHex(EscrowRecvFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	// convert destination address to bytes
 	arb, err := hex.DecodeString(bcmd.StripHex(EscrowArbiterFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Arbiter address is invalid hex: %+v\n", err))
+		return errors.Errorf("Arbiter address is invalid hex: %v\n", err)
 	}
 
 	tx := types.CreateEscrowTx{
@@ -114,15 +114,15 @@ func cmdEscrowCreateTx(cmd *cobra.Command, args []string) {
 		Expiration: EscrowExpireFlag,
 	}
 	data := types.EscrowTxBytes(tx)
-	bcmd.AppTx(EscrowName, data)
+	return bcmd.AppTx(EscrowName, data)
 }
 
-func cmdEscrowResolveTx(cmd *cobra.Command, args []string) {
+func cmdEscrowResolveTx(cmd *cobra.Command, args []string) error {
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(bcmd.StripHex(EscrowAddrFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	tx := types.ResolveEscrowTx{
@@ -130,42 +130,43 @@ func cmdEscrowResolveTx(cmd *cobra.Command, args []string) {
 		Payout: !EscrowPayoutFlag,
 	}
 	data := types.EscrowTxBytes(tx)
-	bcmd.AppTx(EscrowName, data)
+	return bcmd.AppTx(EscrowName, data)
 }
 
-func cmdEscrowExpireTx(cmd *cobra.Command, args []string) {
+func cmdEscrowExpireTx(cmd *cobra.Command, args []string) error {
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(bcmd.StripHex(EscrowAddrFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	tx := types.ExpireEscrowTx{
 		Escrow: addr,
 	}
 	data := types.EscrowTxBytes(tx)
-	bcmd.AppTx(EscrowName, data)
+	return bcmd.AppTx(EscrowName, data)
 }
 
-func cmdEscrowQuery(cmd *cobra.Command, args []string) {
+func cmdEscrowQuery(cmd *cobra.Command, args []string) error {
 	if len(args) != 1 {
-		cmn.Exit("account command requires an argument ([address])")
+		return fmt.Errorf("account command requires an argument ([address])") //never stack trace
 	}
 	addrHex := bcmd.StripHex(args[0])
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(addrHex)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	esc, err := getEscrow(EscrowNodeFlag, addr)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 
 	fmt.Println(string(wire.JSONBytes(esc)))
+	return nil
 }
 
 func getEscrow(tmAddr string, address []byte) (*types.EscrowData, error) {
@@ -187,5 +188,4 @@ func getEscrow(tmAddr string, address []byte) (*types.EscrowData, error) {
 			escrowBytes, err.Error())
 	}
 	return &esc, nil
-
 }

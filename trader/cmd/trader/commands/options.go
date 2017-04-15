@@ -4,13 +4,13 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/tendermint/basecoin-examples/trader/plugins/options"
 	"github.com/tendermint/basecoin-examples/trader/types"
 	bcmd "github.com/tendermint/basecoin/cmd/commands"
 	bc "github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
 	wire "github.com/tendermint/go-wire"
 )
 
@@ -34,37 +34,37 @@ var (
 	CmdOptionsCreateTx = &cobra.Command{
 		Use:   "create",
 		Short: "Create a new option by sending money",
-		Run:   cmdOptionCreateTx,
+		RunE:  cmdOptionCreateTx,
 	}
 
 	CmdOptionsSellTx = &cobra.Command{
 		Use:   "sell",
 		Short: "Offer to sell this option",
-		Run:   cmdOptionSellTx,
+		RunE:  cmdOptionSellTx,
 	}
 
 	CmdOptionsBuyTx = &cobra.Command{
 		Use:   "buy",
 		Short: "Attempt to buy this option",
-		Run:   cmdOptionBuyTx,
+		RunE:  cmdOptionBuyTx,
 	}
 
 	CmdOptionsExerciseTx = &cobra.Command{
 		Use:   "exercise",
 		Short: "Exercise this option to trade currency at the given rate",
-		Run:   cmdOptionExerciseTx,
+		RunE:  cmdOptionExerciseTx,
 	}
 
 	CmdOptionsDissolveTx = &cobra.Command{
 		Use:   "disolve",
 		Short: "Attempt to disolve this option (if never sold, or already expired)",
-		Run:   cmdOptionDissolveTx,
+		RunE:  cmdOptionDissolveTx,
 	}
 
 	CmdOptionsQuery = &cobra.Command{
 		Use:   "query [address]",
 		Short: "Return the contents of the given option",
-		Run:   cmdOptionQuery,
+		RunE:  cmdOptionQuery,
 	}
 )
 
@@ -116,11 +116,11 @@ func init() {
 		func() bc.Plugin { return options.New(OptionName) })
 }
 
-func cmdOptionCreateTx(cmd *cobra.Command, args []string) {
+func cmdOptionCreateTx(cmd *cobra.Command, args []string) error {
 
 	tradeCoins, err := bcmd.ParseCoins(OptionTradeAmountFlag)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 
 	tx := types.CreateOptionTx{
@@ -128,15 +128,15 @@ func cmdOptionCreateTx(cmd *cobra.Command, args []string) {
 		Trade:      tradeCoins,
 	}
 	data := types.OptionsTxBytes(tx)
-	bcmd.AppTx(OptionName, data)
+	return bcmd.AppTx(OptionName, data)
 }
 
-func cmdOptionSellTx(cmd *cobra.Command, args []string) {
+func cmdOptionSellTx(cmd *cobra.Command, args []string) error {
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(bcmd.StripHex(OptionAddrFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	buyer, err := hex.DecodeString(bcmd.StripHex(OptionSellToFlag))
@@ -146,7 +146,7 @@ func cmdOptionSellTx(cmd *cobra.Command, args []string) {
 
 	priceCoins, err := bcmd.ParseCoins(OptionPriceAmountFlag)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 
 	tx := types.SellOptionTx{
@@ -155,71 +155,72 @@ func cmdOptionSellTx(cmd *cobra.Command, args []string) {
 		Price:     priceCoins,
 	}
 	data := types.OptionsTxBytes(tx)
-	bcmd.AppTx(OptionName, data)
+	return bcmd.AppTx(OptionName, data)
 }
 
-func cmdOptionBuyTx(cmd *cobra.Command, args []string) {
+func cmdOptionBuyTx(cmd *cobra.Command, args []string) error {
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(bcmd.StripHex(OptionAddrFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	tx := types.BuyOptionTx{
 		Addr: addr,
 	}
 	data := types.OptionsTxBytes(tx)
-	bcmd.AppTx(OptionName, data)
+	return bcmd.AppTx(OptionName, data)
 }
 
-func cmdOptionExerciseTx(cmd *cobra.Command, args []string) {
+func cmdOptionExerciseTx(cmd *cobra.Command, args []string) error {
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(bcmd.StripHex(OptionAddrFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	tx := types.ExerciseOptionTx{
 		Addr: addr,
 	}
 	data := types.OptionsTxBytes(tx)
-	bcmd.AppTx(OptionName, data)
+	return bcmd.AppTx(OptionName, data)
 }
 
-func cmdOptionDissolveTx(cmd *cobra.Command, args []string) {
+func cmdOptionDissolveTx(cmd *cobra.Command, args []string) error {
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(bcmd.StripHex(OptionAddrFlag))
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	tx := types.DisolveOptionTx{
 		Addr: addr,
 	}
 	data := types.OptionsTxBytes(tx)
-	bcmd.AppTx(OptionName, data)
+	return bcmd.AppTx(OptionName, data)
 }
 
-func cmdOptionQuery(cmd *cobra.Command, args []string) {
+func cmdOptionQuery(cmd *cobra.Command, args []string) error {
 	if len(args) != 1 {
-		cmn.Exit("account command requires an argument ([address])")
+		return fmt.Errorf("account command requires an argument ([address])") //never stack trace
 	}
 	addrHex := bcmd.StripHex(args[0])
 
 	// convert destination address to bytes
 	addr, err := hex.DecodeString(addrHex)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("Recv address is invalid hex: %+v\n", err))
+		return errors.Errorf("Recv address is invalid hex: %v\n", err)
 	}
 
 	opt, err := getOption(OptionNodeFlag, addr)
 	if err != nil {
-		cmn.Exit(fmt.Sprintf("%+v\n", err))
+		return err
 	}
 	fmt.Println(string(wire.JSONBytes(opt)))
+	return nil
 }
 
 func getOption(tmAddr string, address []byte) (*types.OptionData, error) {
