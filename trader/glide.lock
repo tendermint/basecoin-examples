@@ -1,5 +1,5 @@
-hash: c6f0086f1094e9b9aa1277901e2fa13bbf813353273f0d8bc89340c05b55d0d0
-updated: 2017-04-15T15:24:46.105778282-04:00
+hash: ad34d82d72be602d3aab723b1228726feb43f0fd9397b6054ad3f692a1f7484e
+updated: 2017-04-21T13:24:26.366427704-04:00
 imports:
 - name: github.com/btcsuite/btcd
   version: 583684b21bfbde9b5fc4403916fd7c807feb0289
@@ -30,7 +30,7 @@ imports:
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/spf13/cobra
-  version: 5deb57bbca49eb370538fc295ba4b2988f9f5e09
+  version: 10f6b9d7e1631a54ad07c5c0fb71c28a1abfd3c2
 - name: github.com/spf13/pflag
   version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
 - name: github.com/syndtr/goleveldb
@@ -49,14 +49,14 @@ imports:
   - leveldb/table
   - leveldb/util
 - name: github.com/tendermint/abci
-  version: af792eac777de757cd496349a5f6b5313738fcbc
+  version: 56e13d87f4e3ec1ea756957d6b23caa6ebcf0998
   subpackages:
   - client
   - example/dummy
   - server
   - types
 - name: github.com/tendermint/basecoin
-  version: 774d1f9b7c1a167585118fb6acea45d4b21e303f
+  version: 7914661eda664b2e769c117667b462edde6b749f
   subpackages:
   - app
   - cmd/commands
@@ -74,7 +74,7 @@ imports:
 - name: github.com/tendermint/go-clist
   version: 3baa390bbaf7634251c42ad69a8682e7e3990552
 - name: github.com/tendermint/go-common
-  version: dcb015dff6c7af21e65c8e2f3b450df19d38c777
+  version: f9e3db037330c8a8d61d3966de8473eaf01154fa
 - name: github.com/tendermint/go-config
   version: 620dcbbd7d587cf3599dedbf329b64311b0c307a
 - name: github.com/tendermint/go-crypto
@@ -82,7 +82,7 @@ imports:
 - name: github.com/tendermint/go-data
   version: e7fcc6d081ec8518912fcdc103188275f83a3ee5
 - name: github.com/tendermint/go-db
-  version: eac3f2bc147023957c8bf69432a4e6c4dc5c3f72
+  version: 9643f60bc2578693844aacf380a7c32e4c029fee
 - name: github.com/tendermint/go-events
   version: f8ffbfb2be3483e9e7927495590a727f51c0c11f
 - name: github.com/tendermint/go-flowrate
@@ -94,17 +94,17 @@ imports:
 - name: github.com/tendermint/go-merkle
   version: 714d4d04557fd068a7c2a1748241ce8428015a96
 - name: github.com/tendermint/go-p2p
-  version: c39e001a957caf768f06c85c840debb8282c3aaa
+  version: e8f33a47846708269d373f9c8080613d6c4f66b2
   subpackages:
   - upnp
 - name: github.com/tendermint/go-rpc
-  version: 4671c44b2d124f7f6f6243dbfbf4ae2bf42ee809
+  version: 2c8df0ee6b60d8ac33662df13a4e358c679e02bf
   subpackages:
   - client
   - server
   - types
 - name: github.com/tendermint/go-wire
-  version: f530b7af7a8b06e612c2063bff6ace49060a085e
+  version: c1c9a57ab8038448ddea1714c0698f8051e5748c
 - name: github.com/tendermint/log15
   version: ae0f3d6450da9eac7074b439c8e1c3cabf0d5ce6
   subpackages:
@@ -115,7 +115,7 @@ imports:
   - app
   - client
 - name: github.com/tendermint/tendermint
-  version: 022a5509181a19f78995a3dd9bba470333fe2d63
+  version: 7f20eca8927b798acd00cc291246a130f3b4ad2d
   subpackages:
   - blockchain
   - cmd/tendermint/commands
@@ -128,10 +128,13 @@ imports:
   - rpc/core/types
   - rpc/grpc
   - state
+  - state/txindex
+  - state/txindex/kv
+  - state/txindex/null
   - types
   - version
 - name: golang.org/x/crypto
-  version: cbc3d0884eac986df6e78a039b8792e869bff863
+  version: 96846453c37f0876340a66a47f3f75b1f3a6cd2d
   subpackages:
   - curve25519
   - nacl/box

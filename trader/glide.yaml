@@ -3,19 +3,19 @@ import:
 - package: github.com/spf13/cobra
   version: master
 - package: github.com/tendermint/abci
-  version: master
+  version: develop
   subpackages:
   - types
 - package: github.com/tendermint/basecoin
-  version: cli_cobra
+  version: develop
   subpackages:
   - cmd/commands
   - state
   - types
 - package: github.com/tendermint/go-common
-  version: master
+  version: develop
 - package: github.com/tendermint/go-wire
-  version: master
+  version: develop
 - package: golang.org/x/crypto
   version: master
   subpackages:

@@ -1,25 +1,25 @@
 package: github.com/tendermint/basecoin-examples/paytovote
 import:
 - package: github.com/tendermint/abci
-  version: master
+  version: develop
   subpackages:
   - types
 - package: github.com/tendermint/basecoin
-  version: cli_cobra  
+  version: develop
   subpackages:
   - cmd/commands
   - state
   - types
 - package: github.com/tendermint/go-common
-  version: master
+  version: develop
 - package: github.com/tendermint/go-wire
-  version: master
+  version: develop
 - package: github.com/spf13/cobra
 testImport:
 - package: github.com/stretchr/testify
   subpackages:
   - assert
 - package: github.com/tendermint/merkleeyes
-  version: master
+  version: develop
   subpackages:
   - client

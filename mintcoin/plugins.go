@@ -32,10 +32,6 @@ func (mp MintPlugin) Name() string {
 // Set initial minters
 func (mp MintPlugin) SetOption(store types.KVStore, key string, value string) (log string) {
 
-	fmt.Println("ahsgosdrfgojsdfojsergsefgsdfg")
-	fmt.Println(key)
-	fmt.Println(value)
-
 	// value is always a hex-encoded address
 	addr, err := hex.DecodeString(value)
 	if err != nil {
