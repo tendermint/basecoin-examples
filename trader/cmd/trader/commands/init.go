@@ -7,7 +7,7 @@ import (
 func init() {
 
 	//Change the working directory
-	bcmd.DefaultHome = "trader"
+	bcmd.DefaultHome = ".trader"
 
 	//Change the GenesisJSON
 	bcmd.GenesisJSON = `{

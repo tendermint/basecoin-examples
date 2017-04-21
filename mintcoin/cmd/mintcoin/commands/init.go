@@ -7,7 +7,7 @@ import (
 func init() {
 
 	//Change the working directory
-	bcmd.DefaultHome = "mint"
+	bcmd.DefaultHome = ".mint"
 
 	//Change the GenesisJSON
 	bcmd.GenesisJSON = `{
