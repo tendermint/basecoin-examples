@@ -7,11 +7,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/basecoin-examples/trader/plugins/options"
-	"github.com/tendermint/basecoin-examples/trader/types"
 	bcmd "github.com/tendermint/basecoin/cmd/commands"
 	bc "github.com/tendermint/basecoin/types"
 	wire "github.com/tendermint/go-wire"
+
+	"github.com/tendermint/basecoin-examples/trader/plugins/options"
+	"github.com/tendermint/basecoin-examples/trader/types"
 )
 
 const OptionName = "options"
@@ -118,7 +119,7 @@ func init() {
 
 func cmdOptionCreateTx(cmd *cobra.Command, args []string) error {
 
-	tradeCoins, err := bcmd.ParseCoins(OptionTradeAmountFlag)
+	tradeCoins, err := bc.ParseCoins(OptionTradeAmountFlag)
 	if err != nil {
 		return err
 	}
@@ -144,7 +145,7 @@ func cmdOptionSellTx(cmd *cobra.Command, args []string) error {
 		buyer = nil
 	}
 
-	priceCoins, err := bcmd.ParseCoins(OptionPriceAmountFlag)
+	priceCoins, err := bc.ParseCoins(OptionPriceAmountFlag)
 	if err != nil {
 		return err
 	}

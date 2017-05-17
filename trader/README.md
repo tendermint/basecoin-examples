@@ -60,8 +60,8 @@ commands:
 Setup basecoin server with default genesis:
 
 ```
-trader init
 trader unsafe_reset_all
+trader init
 ```
 
 Now we can start Basecoin with the trader plugin and the default genesis:
@@ -215,8 +215,8 @@ You know the deal by now, so....
 In one window start the server:
 
 ```
-trader init
 trader unsafe_reset_all
+trader init
 trader start
 ```
 

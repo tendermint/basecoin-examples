@@ -5,10 +5,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	// import _ to register the mint plugin to apptx
-	_ "github.com/tendermint/basecoin-examples/mintcoin/cmd/mintcoin/commands"
 	"github.com/tendermint/basecoin/cmd/commands"
 	"github.com/tendermint/tmlibs/cli"
+
+	// import _ to register the mint plugin to apptx
+	_ "github.com/tendermint/basecoin-examples/mintcoin/cmd/mintcoin/commands"
 )
 
 func main() {
