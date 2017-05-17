@@ -7,7 +7,6 @@ import (
 	abci "github.com/tendermint/abci/types"
 	"github.com/tendermint/basecoin/state"
 	"github.com/tendermint/basecoin/types"
-	"github.com/tendermint/go-crypto"
 	wire "github.com/tendermint/go-wire"
 )
 
@@ -76,7 +75,6 @@ func (mp MintPlugin) RunTx(store types.KVStore, ctx types.CallContext, txBytes [
 		acct := state.GetAccount(store, credit.Addr)
 		if acct == nil {
 			acct = &types.Account{
-				PubKey:   crypto.PubKeyS{nil},
 				Sequence: 0,
 			}
 		}

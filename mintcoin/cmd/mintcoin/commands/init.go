@@ -5,10 +5,6 @@ import (
 )
 
 func init() {
-
-	//Change the working directory
-	bcmd.DefaultHome = ".mint"
-
 	//Change the GenesisJSON
 	bcmd.GenesisJSON = `{
   "app_hash": "",
@@ -18,10 +14,10 @@ func init() {
     {
       "amount": 10,
       "name": "",
-      "pub_key": [
-	1,
-	"7B90EA87E7DC0C7145C8C48C08992BE271C7234134343E8A8E8008E617DE7B30"
-      ]
+      "pub_key": {
+        "type": "ed25519",
+        "data": "7B90EA87E7DC0C7145C8C48C08992BE271C7234134343E8A8E8008E617DE7B30"
+      }
     }
   ],
   "app_options": {

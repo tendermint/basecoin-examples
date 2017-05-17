@@ -49,7 +49,7 @@ func mintTxCmd(cmd *cobra.Command, args []string) error {
 		return errors.Errorf("To address is invalid hex: %v\n", err)
 	}
 
-	amountCoins, err := bcmd.ParseCoins(MintAmountFlag)
+	amountCoins, err := types.ParseCoins(MintAmountFlag)
 	if err != nil {
 		return err
 	}

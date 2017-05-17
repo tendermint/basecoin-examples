@@ -1,11 +1,14 @@
 package main
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 
 	// import _ to register the mint plugin to apptx
 	_ "github.com/tendermint/basecoin-examples/mintcoin/cmd/mintcoin/commands"
 	"github.com/tendermint/basecoin/cmd/commands"
+	"github.com/tendermint/tmlibs/cli"
 )
 
 func main() {
@@ -24,8 +27,9 @@ func main() {
 		commands.BlockCmd,
 		commands.AccountCmd,
 		commands.UnsafeResetAllCmd,
-		commands.QuickVersionCmd("0.1.0"),
+		commands.QuickVersionCmd("0.2.0"),
 	)
 
-	commands.ExecuteWithDebug(RootCmd)
+	cmd := cli.PrepareMainCmd(RootCmd, "MT", os.ExpandEnv("$HOME/.mintcoin"))
+	cmd.Execute()
 }
