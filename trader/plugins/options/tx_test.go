@@ -7,7 +7,7 @@ import (
 	"github.com/tendermint/basecoin-examples/trader"
 	"github.com/tendermint/basecoin-examples/trader/types"
 	bc "github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
+	cmn "github.com/tendermint/tmlibs/common"
 )
 
 func TestBasicFlow(t *testing.T) {
@@ -51,7 +51,7 @@ func TestBasicFlow(t *testing.T) {
 	// let's see the bond is set properly
 	data, err := types.LoadOptionData(pstore, addr)
 	assert.Nil(err)
-	assert.Equal(addr, data.Address())
+	assert.EqualValues(addr, data.Address())
 	assert.Equal(bond, data.Bond)
 	assert.Equal(20, data.Serial)
 	assert.Equal(a, data.Issuer)

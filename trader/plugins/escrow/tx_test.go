@@ -7,7 +7,7 @@ import (
 	"github.com/tendermint/basecoin-examples/trader"
 	"github.com/tendermint/basecoin-examples/trader/types"
 	bc "github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
+	cmn "github.com/tendermint/tmlibs/common"
 )
 
 func TestTransactions(t *testing.T) {
@@ -64,7 +64,7 @@ func TestTransactions(t *testing.T) {
 	// load the escrow data and make sure it is happy
 	esc, err := types.LoadEscrow(pstore, addr)
 	if assert.Nil(err) {
-		assert.Equal(addr, esc.Address())
+		assert.EqualValues(addr, esc.Address())
 		assert.Equal(sender, esc.Sender)
 		assert.Equal(recv, esc.Recipient)
 		assert.Equal(arb, esc.Arbiter)

@@ -11,10 +11,9 @@ import (
 	"github.com/tendermint/basecoin/types"
 
 	abci "github.com/tendermint/abci/types"
-	cmn "github.com/tendermint/go-common"
-	"github.com/tendermint/go-crypto"
 	"github.com/tendermint/go-wire"
 	eyescli "github.com/tendermint/merkleeyes/client"
+	cmn "github.com/tendermint/tmlibs/common"
 )
 
 func TestP2VPlugin(t *testing.T) {
@@ -62,8 +61,7 @@ func TestP2VPlugin(t *testing.T) {
 
 		// Sign request
 		signBytes := tx.SignBytes(chainID)
-		sig := test1PrivAcc.Sign(signBytes)
-		tx.Input.Signature = crypto.SignatureS{sig}
+		tx.Input.Signature = test1PrivAcc.Sign(signBytes)
 
 		// Write request
 		//txBytes := []byte(wire.BinaryBytes(struct{}{tx}))
