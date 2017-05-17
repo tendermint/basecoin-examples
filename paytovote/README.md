@@ -13,7 +13,7 @@ commands (cmd/commands)
 
 ### Install
 Run `make all` in this directory. This will update all dependencies, run the
-test suite, and install the `paytovote` binary to your `$GOPATH/bin`.  
+test suite, and install the `paytovote` binary to your `$GOPATH/bin`.
 
 ### General Usage
  - create issues with `paytovote tx paytovote create-issue`
@@ -48,17 +48,17 @@ test suite, and install the `paytovote` binary to your `$GOPATH/bin`.
 First perform the initialization commands:
 
 ```
-paytovote init
 paytovote unsafe_reset_all
+paytovote init
 ```
 
-For the default genesis file provided (~/.basecoin/genesis.json) we have specified a starting account at the hex 
-address 0x1B1BE55F969F54064628A63B9559E7C21C925165 to have 1000 coins of "issueToken", and "voteToken". 
+For the default genesis file provided (~/.basecoin/genesis.json) we have specified a starting account at the hex
+address 0x1B1BE55F969F54064628A63B9559E7C21C925165 to have 1000 coins of "issueToken", and "voteToken".
 The address, public key, and private key for this account are also stored under ~/.basecoin/key.json
 Now we can start paytovote:
 
 ```
-paytovote start 
+paytovote start
 ```
 
 In another terminal window (or tab: ctrl-shift-t), we can run the client tool:
@@ -73,7 +73,7 @@ issueToken and is currently hard coded into paytovote, let's create an issue
 which can be voted on. Notice the flags that are used in this proceedure:
  - `--from key.json` the transaction is coming from the account described within the key.json file under our current directory
  - `--voteFee 1voteToken` set the future cost of voting for this issue to 1 voteToken
- - `--amount 1issueToken` the amount of coins we are sending in with this transaction, in this case 1 issueToken 
+ - `--amount 1issueToken` the amount of coins we are sending in with this transaction, in this case 1 issueToken
  - `--issue freeFoobar` name of the issue we will be generating with this transaction
 
 ```

@@ -1,10 +1,11 @@
 package paytovote
 
 import (
+	"fmt"
+
 	abci "github.com/tendermint/abci/types"
 	"github.com/tendermint/basecoin/state"
 	"github.com/tendermint/basecoin/types"
-	cmn "github.com/tendermint/go-common"
 	"github.com/tendermint/go-wire"
 )
 
@@ -82,7 +83,7 @@ func IssueKey(issue string) []byte {
 	//The state key is defined as only being affected by effected issue
 	// aka. if multiple paytovote plugins are initialized
 	// then all will have access to the same issue vote counts
-	return []byte(cmn.Fmt("P2VPlugin,issue=%v", issue))
+	return []byte(fmt.Sprintf("P2VPlugin,issue=%v", issue))
 }
 
 //get the issue from store bytes

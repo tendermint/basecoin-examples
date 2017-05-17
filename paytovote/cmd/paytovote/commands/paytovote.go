@@ -75,7 +75,7 @@ func init() {
 
 func createIssueCmd(cmd *cobra.Command, args []string) error {
 
-	voteFee, err := bcmd.ParseCoins(voteFeeFlag)
+	voteFee, err := types.ParseCoins(voteFeeFlag)
 	if err != nil {
 		return err
 	}

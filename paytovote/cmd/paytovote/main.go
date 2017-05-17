@@ -1,10 +1,14 @@
 package main
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 
-	_ "github.com/tendermint/basecoin-examples/paytovote/cmd/paytovote/commands"
 	"github.com/tendermint/basecoin/cmd/commands"
+	"github.com/tendermint/tmlibs/cli"
+
+	_ "github.com/tendermint/basecoin-examples/paytovote/cmd/paytovote/commands"
 )
 
 func main() {
@@ -26,5 +30,6 @@ func main() {
 		commands.QuickVersionCmd("0.2.0"),
 	)
 
-	commands.ExecuteWithDebug(RootCmd)
+	cmd := cli.PrepareMainCmd(RootCmd, "PV", os.ExpandEnv("$HOME/.paytovote"))
+	cmd.Execute()
 }
