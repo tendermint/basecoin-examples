@@ -3,22 +3,34 @@ package main
 import (
 	"os"
 
-	// import _ to register the mint plugin to apptx
-	_ "github.com/tendermint/basecoin-examples/mintcoin/commands"
+	"github.com/spf13/cobra"
+
 	"github.com/tendermint/basecoin/cmd/commands"
-	"github.com/urfave/cli"
+	"github.com/tendermint/tmlibs/cli"
+
+	// import _ to register the mint plugin to apptx
+	_ "github.com/tendermint/basecoin-examples/mintcoin/cmd/mintcoin/commands"
 )
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "mintcoin"
-	app.Usage = "mintcoin [command] [args...]"
-	app.Version = "0.1.0"
-	app.Commands = []cli.Command{
+
+	var RootCmd = &cobra.Command{
+		Use: "mintcoin",
+	}
+
+	RootCmd.AddCommand(
+		commands.InitCmd,
 		commands.StartCmd,
 		commands.TxCmd,
 		commands.QueryCmd,
+		commands.KeyCmd,
+		commands.VerifyCmd,
+		commands.BlockCmd,
 		commands.AccountCmd,
-	}
-	app.Run(os.Args)
+		commands.UnsafeResetAllCmd,
+		commands.QuickVersionCmd("0.2.0"),
+	)
+
+	cmd := cli.PrepareMainCmd(RootCmd, "MT", os.ExpandEnv("$HOME/.mintcoin"))
+	cmd.Execute()
 }

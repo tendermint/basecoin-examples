@@ -1,35 +1,39 @@
 # Trader - let's play with finances
 
-Trader simulates some basic financial actions that are very common in the modern world,
-and shows how we can add these features to basecoin, in our quest to make the best financial system ever.
-Stable and secure and feature-rich, and super fast.  This is going to be so good.
+Trader simulates some basic financial actions that are very common in the
+modern world, and shows how we can add these features to basecoin, in our quest
+to make the best financial system ever.  Stable and secure and feature-rich,
+and super fast.  This is going to be so good.
+
+## Install
+
+Run `make all` in this directory.
+This will update all dependencies, run the test suite, and install the `trader` binary to your `$GOPATH/bin`.
+
 
 ## Escrow
 
-This first instrument we implement is an [escrow](./escrow).
-We can send money via an `AppTx` to create an escrow.
-We thereby specify who the intended recipient is,
-and who can releae the money (or return it).
-Note that we give this "arbiter" the power to send
-the money to the recipient or return it to the sender,
-but no way to take the money and put it in their own pocket.
-Removing more locations for fraud.
+This first instrument we implement is an [escrow](./escrow).  We can send money
+via an `AppTx` to create an escrow.  We thereby specify who the intended
+recipient is, and who can releae the money (or return it).  Note that we give
+this "arbiter" the power to send the money to the recipient or return it to the
+sender, but no way to take the money and put it in their own pocket.  Removing
+more locations for fraud.
 
-When we create an escrow, we get a unique address back.
-Save this.
-Later on, the arbiter can send a message to this address to release the money
-to either the intended recipient, or back to the sender if they failed to deliver on their promise.
-And just in case, if too much time passed and no one did anything,
-you can always expire the escrow and recover the money
-(eg. if the arbiter lost their private key - ouch!).
+When we create an escrow, we get a unique address back.  Save this.  Later on,
+the arbiter can send a message to this address to release the money to either
+the intended recipient, or back to the sender if they failed to deliver on
+their promise.  And just in case, if too much time passed and no one did
+anything, you can always expire the escrow and recover the money (eg. if the
+arbiter lost their private key - ouch!).
 
 ### Data structure
 
-We create a separate data location for each escrow.
-It is stored in the following format, where `Sender`, `Recipient`, and `Arbiter` are all addresses.
-The value is determined from the money sent in creation,
-and the same amount is paid back when the escrow is resolved.
-The address of the escrow is determined from the hash for the data bytes, to guarantee uniqueness.
+We create a separate data location for each escrow.  It is stored in the
+following format, where `Sender`, `Recipient`, and `Arbiter` are all addresses.
+The value is determined from the money sent in creation, and the same amount is
+paid back when the escrow is resolved.  The address of the escrow is determined
+from the hash for the data bytes, to guarantee uniqueness.
 
 ```
 // EscrowData is our principal data structure in the db
@@ -42,64 +46,72 @@ type EscrowData struct {
 }
 ```
 
-There are two basic operations one can perform on an escrow -
-creating it, and resolving it.
-Resolving it can be done either by a clear decision of the arbiter, or by a simple expiration.
-Thus, there are three transaction types for these two concepts.
+There are two basic operations one can perform on an escrow - creating it, and
+resolving it.  Resolving it can be done either by a clear decision of the
+arbiter, or by a simple expiration.  Thus, there are three transaction types
+for these two concepts.
 
 ### Testing with a CLI
 
-By this point, you have probably played with the basecoin-based cli a few times and are feeling real comfortable-like.  So, let's just jump right in with a few commands:
+By this point, you have probably played with the basecoin-based cli a few times
+and are feeling real comfortable-like.  So, let's just jump right in with a few
+commands:
 
 Setup basecoin server with default genesis:
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/trader
-make all
-tendermint unsafe_reset_all
-cd data
-trader start --in-proc
+trader unsafe_reset_all
+trader init
 ```
 
-Run basecoin client in another window.  In this example, key.json will be the sender, key2.json the arbiter.  And some empty account the receiver.
+Now we can start Basecoin with the trader plugin and the default genesis:
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/trader/data
+trader start
+```
 
+Run basecoin client in another window.  In this example, key.json will be the
+sender, key2.json the arbiter.  And some empty account the receiver.
+
+```
 # check the three accounts
-trader account D397BC62B435F3CF50570FBAB4340FE52C60858F  # sender
-trader account 4793A333846E5104C46DD9AB9A00E31821B2F301  # arbiter
+trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # sender
+trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # arbiter
+trader account 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A   # receiver
+
+# (optional) give the broke guy some cash
+trader tx send --chain_id trader_chain_id --from key.json --amount 20mycoin --to 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A
 trader account 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A   # receiver
 
 # let's make an escrow
-trader tx escrow create --chain_id trader_chain_id --from key.json --amount 400 --recv 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A --arbiter 4793A333846E5104C46DD9AB9A00E31821B2F301
+trader tx escrow create --chain_id trader_chain_id --from key.json --amount 400mycoin --recv 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A --arbiter 1DA7C74F9C219229FD54CC9F7386D5A3839F0090
 
 #-> TODO: need to get ESCROW_ID locally, broadcastTx response....
-ESCROW_ID=9D2C197899F922359D7AB13D18123B2749077FB8
+ESCROW_ID=<paste output addr of last command>
 
 # fails cuz the sender cannot release funds
-trader tx escrow pay --chain_id trader_chain_id --from key.json --amount 1 --escrow $ESCROW_ID
+trader tx escrow pay --chain_id trader_chain_id --from key.json --amount 1mycoin --escrow $ESCROW_ID
 
 # note, that it didn't cost anything to fail :)
-trader account D397BC62B435F3CF50570FBAB4340FE52C60858F  # sender
+trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # sender
 
 # succeeds as the arbiter can
-trader tx escrow pay --chain_id trader_chain_id --from key2.json --amount 1 --escrow $ESCROW_ID
+trader tx escrow pay --chain_id trader_chain_id --from key2.json --amount 1mycoin --escrow $ESCROW_ID
 
-# but you pay the fees when the call works (1 blank here)
-trader account 4793A333846E5104C46DD9AB9A00E31821B2F301  # arbiter
+# but you pay the fees when the call works (1 mycoin here)
+trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # arbiter
 
 # and the money was sent
-trader account D397BC62B435F3CF50570FBAB4340FE52C60858F  # sender
+trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # sender
 trader account 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A   # receiver
 
 # but an error the second time the arbiter tries to send the same money (no re-entrant contracts)
-trader tx escrow pay --chain_id trader_chain_id --from key2.json --amount 1 --escrow $ESCROW_ID
+trader tx escrow pay --chain_id trader_chain_id --from key2.json --amount 1mycoin --escrow $ESCROW_ID
 
 # TODO: let's demo expiry and more
 
 # ASIDE: digging in with a debugger....
-dlv debug ../cmd/trader/main.go -- tx escrow create --chain_id trader_chain_id --from key.json --amount 400 --recv 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A --arbiter 4793A333846E5104C46DD9AB9A00E31821B2F301
+dlv debug ../cmd/trader/main.go -- tx escrow create --chain_id trader_chain_id --from key.json --amount 400mycoin --recv 2ABAA2CCFA1F618CF9C97F1FD59FC3EE4968FE8A --arbiter 1DA7C74F9C219229FD54CC9F7386D5A3839F0090
 ```
 
 ## Currency Options
@@ -190,7 +202,11 @@ the mutable parts of the data (`OptionHolder`) should not be included in this ha
 To guarantee uniqueness (should the same user issue the same command twice),
 it is nice to include the sequence number of the create transaction as part of the immutible section.
 
-Using these patterns should allow you to perform most actions you reasonably wish to perform with your basecoin plugin, while removing much boilerplate and bit switching.  It is also very extensible if you wish to add a new transaction type.  And allows easily setting up the scaffolding for [unit tests](./options/tx_test.go#L12-L43).
+Using these patterns should allow you to perform most actions you reasonably
+wish to perform with your basecoin plugin, while removing much boilerplate and
+bit switching.  It is also very extensible if you wish to add a new transaction
+type.  And allows easily setting up the scaffolding for [unit
+tests](./options/tx_test.go#L12-L43).
 
 ### Testing with a CLI
 
@@ -199,70 +215,70 @@ You know the deal by now, so....
 In one window start the server:
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/trader
-make all
-tendermint unsafe_reset_all
-cd data
-trader start --in-proc --options-plugin
-# dlv debug ../cmd/trader/main.go -- start --in-proc --options-plugin
+trader unsafe_reset_all
+trader init
+trader start
 ```
 
 Run basecoin client in another window.  In this example, key.json will be the issuer, key2.json the holder.
 
 ```
-cd $GOPATH/src/github.com/tendermint/basecoin-examples/trader/data
-
 # check the two accounts
-trader account D397BC62B435F3CF50570FBAB4340FE52C60858F  # issuer
-trader account 4793A333846E5104C46DD9AB9A00E31821B2F301  # holder
+trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # issuer
+trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # holder
 
 # let's make an option
-trader apptx --chain_id trader_chain_id --from key.json --amount 400ETH options create --trade 4BTC
-# dlv debug ../cmd/trader/main.go -- apptx --chain_id trader_chain_id --from key.json --coin ETH --amount 400 options create --trade 4BTC
-
+trader tx options create --chain_id trader_chain_id --from key.json --amount 400ETH  --trade 4BTC
 
 #-> TODO: need to get OPTION_ID locally, broadcastTx response....
-OPTION_ID=XXXXXXX
-trader apptx --chain_id trader_chain_id options query $OPTION_ID
+OPTION_ID=<paste result from create command>
+trader tx options query --chain_id trader_chain_id  $OPTION_ID
 
 # we cannot exercise it cuz the we do not own the option yet
-trader apptx --chain_id trader_chain_id --from key2.json --amount 4BTC options exercise --option $OPTION_ID
+trader tx options exercise --chain_id trader_chain_id --from key2.json --amount 4BTC --option $OPTION_ID
 
 # note, that it didn't cost anything to fail :) no 4 BTC loss....
-trader account 4793A333846E5104C46DD9AB9A00E31821B2F301  # sender
+trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # sender
 
 # so, let us offer this for sale (only the current holder can)
 # also note this money is not used up (just needs to be non-zero to prevent spaming)
-trader apptx --chain_id trader_chain_id --from key.json --amount 10ETH options sell --option $OPTION_ID --price 100blank
+trader tx options sell --chain_id trader_chain_id --from key.json --amount 10ETH --option $OPTION_ID --price 100mycoin
 
 # and now the holder can buy the rights to the option.
 # the money is used up to the price level (overpayment returned)
-trader apptx --chain_id trader_chain_id --from key2.json --amount 250blank options buy --option $OPTION_ID
+trader tx options buy --chain_id trader_chain_id --from key2.json --amount 250mycoin --option $OPTION_ID
 
 # check the two accounts
-trader account D397BC62B435F3CF50570FBAB4340FE52C60858F  # issuer
-trader account 4793A333846E5104C46DD9AB9A00E31821B2F301  # holder
+trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # issuer
+trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # holder
 
 # notice the issuer is down the 400 ETH stored as a bond in the option
-# and notice the only other change is the 100 blank payment from holder to issuer for ownership of the option
+# and notice the only other change is the 100 mycoin payment from holder to issuer for ownership of the option
 # all other coin is returned untouched after the transaction
 
+# and see the option has changed owner
+trader tx options query --chain_id trader_chain_id  $OPTION_ID
+
 # and now for the real trick, let's use this option
-trader apptx --chain_id trader_chain_id --from key2.json --amount 2BTC options exercise --option $OPTION_ID
+trader tx options exercise --chain_id trader_chain_id --from key2.json --amount 2BTC --option $OPTION_ID
 
 # wait... it only works if you send the required amount
-trader apptx --chain_id trader_chain_id --from key2.json --amount 4BTC options exercise --option $OPTION_ID
+trader tx options exercise --chain_id trader_chain_id --from key2.json --amount 4BTC --option $OPTION_ID
 
 # now, look at this, the issuer got the 4 BTC, the holder the 400 ETH
 # and we can even trade the rights to perform this operation :)
-trader account D397BC62B435F3CF50570FBAB4340FE52C60858F  # issuer
-trader account 4793A333846E5104C46DD9AB9A00E31821B2F301  # holder
+trader account 1B1BE55F969F54064628A63B9559E7C21C925165  # issuer
+trader account 1DA7C74F9C219229FD54CC9F7386D5A3839F0090  # holder
 
 # and the option has now disappeared, so you can't use it again
-trader apptx --chain_id trader_chain_id options query $OPTION_ID
+trader tx options query --chain_id trader_chain_id  $OPTION_ID
 ```
 
-This is just the start.  There is also some methods for expiration and "disolving" the option if it will not be used.  You could add a UI to enable market trading and just do the resolution on the blockchain.  Or spend a couple days and build even more complex instruments, complete with unit tests and safety, so you don't go bankrupt from a bug.
+This is just the start.  There is also some methods for expiration and
+"disolving" the option if it will not be used.  You could add a UI to enable
+market trading and just do the resolution on the blockchain.  Or spend a couple
+days and build even more complex instruments, complete with unit tests and
+safety, so you don't go bankrupt from a bug.
 
 ## Attaching a GUI
 

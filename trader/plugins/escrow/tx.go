@@ -104,5 +104,5 @@ func (p Plugin) runExpireEscrow(store bc.KVStore,
 	// wipe out the escrow and return the payment to sender
 	accts.Pay(esc.Sender, esc.Amount)
 	store.Set(tx.Escrow, nil)
-	return abci.OK.AppendLog("Escrow settled")
+	return abci.OK.AppendLog("Escrow expired")
 }

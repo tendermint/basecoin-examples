@@ -1,42 +1,47 @@
 package paytovote
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/tendermint/basecoin/app"
-	//cmds "github.com/tendermint/basecoin/cmd/basecoin/commands"
 	"github.com/tendermint/basecoin/state"
-	"github.com/tendermint/basecoin/testutils"
 	"github.com/tendermint/basecoin/types"
 
 	abci "github.com/tendermint/abci/types"
-	cmn "github.com/tendermint/go-common"
 	"github.com/tendermint/go-wire"
 	eyescli "github.com/tendermint/merkleeyes/client"
+	cmn "github.com/tendermint/tmlibs/common"
 )
 
 func TestP2VPlugin(t *testing.T) {
+	assert := assert.New(t)
 
 	// Basecoin initialization
 	store := eyescli.NewLocalClient("", 0) //non-persistent instance of merkleeyes
 	chainID := "test_chain_id"
 	bcApp := app.NewBasecoin(store)
-	bcApp.SetOption("base/chainID", chainID)
+	//XXX test
+	bcApp.SetOption("base/chain_id", chainID)
 
 	// Add Counter plugin
 	P2VPlugin := New()
 	bcApp.RegisterPlugin(P2VPlugin)
 
 	// Account initialization
-	test1PrivAcc := testutils.PrivAccountFromSecret("test1")
+	test1PrivAcc := types.PrivAccountFromSecret("test1")
 	test1Acc := test1PrivAcc.Account
 
 	// Seed Basecoin with account
 	startBal := types.Coins{{"", 1000}, {"issueToken", 1000}, {"voteToken", 1000}}
 	test1Acc.Balance = startBal
-	bcApp.SetOption("base/account", string(wire.JSONBytes(test1Acc)))
+	accMarshal, err := json.Marshal(test1Acc)
+	assert.Nil(err, "error Marshalling account")
+	errStr := bcApp.SetOption("base/account", string(accMarshal))
+	assert.Equal("Success", errStr, errStr)
+
 	bcApp.Commit()
 
 	deliverTx := func(gas int64,
@@ -56,10 +61,10 @@ func TestP2VPlugin(t *testing.T) {
 
 		// Sign request
 		signBytes := tx.SignBytes(chainID)
-		sig := test1PrivAcc.PrivKey.Sign(signBytes)
-		tx.Input.Signature = sig
+		tx.Input.Signature = test1PrivAcc.Sign(signBytes)
 
 		// Write request
+		//txBytes := []byte(wire.BinaryBytes(struct{}{tx}))
 		txBytes := wire.BinaryBytes(struct{ types.Tx }{tx})
 		return bcApp.DeliverTx(txBytes)
 	}
@@ -122,47 +127,47 @@ func TestP2VPlugin(t *testing.T) {
 	// Test a basic issue generation
 	res := deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 1,
 		NewCreateIssueTxBytes(issue1, types.Coins{{"voteToken", 2}}, types.Coins{{"issueToken", 1}}))
-	assert.True(t, res.IsOK(), res.String())
+	assert.True(res.IsOK(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}}))
 	testIssue(issue1, 0, 0)
 
 	// Test a basic votes
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 2,
 		NewVoteTxBytes(issue1, TypeByteVoteFor))
-	assert.True(t, res.IsOK(), res.String())
+	assert.True(res.IsOK(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 2}}))
 	testIssue(issue1, 1, 0)
 
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 3,
 		NewVoteTxBytes(issue1, TypeByteVoteAgainst))
-	assert.True(t, res.IsOK(), res.String())
+	assert.True(res.IsOK(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testIssue(issue1, 1, 1)
 
 	// Test prevented voting on non-existent issue
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 4,
 		NewVoteTxBytes(issue2, TypeByteVoteFor))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testNoIssue(issue2)
 
 	// Test prevented duplicate issue generation
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 5,
 		NewCreateIssueTxBytes(issue1, types.Coins{{"voteToken", 1}}, types.Coins{{"issueToken", 1}}))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 
 	// Test prevented issue generation from insufficient funds
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 2}}, 6,
 		NewCreateIssueTxBytes(issue2, types.Coins{{"voteToken", 1}}, types.Coins{{"issueToken", 2}}))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testNoIssue(issue2)
 
 	// Test prevented voting from insufficient funds
 	res = deliverTx(0, types.Coin{}, types.Coins{{"", 1}, {"issueToken", 1}, {"voteToken", 1}}, 7,
 		NewVoteTxBytes(issue1, TypeByteVoteFor))
-	assert.True(t, res.IsErr(), res.String())
+	assert.True(res.IsErr(), res.String())
 	testBalance(startBal.Minus(types.Coins{{"issueToken", 1}, {"voteToken", 4}}))
 	testIssue(issue1, 1, 1)
 }

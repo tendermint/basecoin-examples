@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"github.com/tendermint/basecoin/state"
 	"github.com/tendermint/basecoin/types"
 	wire "github.com/tendermint/go-wire"

@@ -30,6 +30,7 @@ func (mp MintPlugin) Name() string {
 
 // Set initial minters
 func (mp MintPlugin) SetOption(store types.KVStore, key string, value string) (log string) {
+
 	// value is always a hex-encoded address
 	addr, err := hex.DecodeString(value)
 	if err != nil {
@@ -62,7 +63,7 @@ func (mp MintPlugin) RunTx(store types.KVStore, ctx types.CallContext, txBytes [
 		return abci.ErrEncodingError
 	}
 
-	// make sure it was signed by a Issuer
+	// make sure it was signed by an Issuer
 	s := mp.loadState(store)
 	if !s.IsIssuer(ctx.CallerAddress) {
 		return abci.ErrUnauthorized
@@ -74,7 +75,6 @@ func (mp MintPlugin) RunTx(store types.KVStore, ctx types.CallContext, txBytes [
 		acct := state.GetAccount(store, credit.Addr)
 		if acct == nil {
 			acct = &types.Account{
-				PubKey:   nil,
 				Sequence: 0,
 			}
 		}
