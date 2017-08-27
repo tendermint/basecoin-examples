@@ -1,5 +1,7 @@
 # Basecoin Examples
 
+**DEPRECATED:** See [Cosmos Academy](https://github.com/cosmos/cosmos-academy)
+
 This repository contains example code and new ideas for cryptocurrency design with basecoin. 
 Each subdirectory is thought out as a stand-alone application, and all code is under Apache 2.0 license.
 You can use them as 
